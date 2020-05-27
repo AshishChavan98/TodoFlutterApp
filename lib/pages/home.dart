@@ -55,14 +55,15 @@ class _HomeState extends State<Home> {
           builder: (context) {
             return Container(
 //              height: MediaQuery.of(context).size.height * 0.75,
+//              width:MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 color:Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0),
-                  topRight: Radius.circular(30.0),
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
                 )
               ),
-              padding: EdgeInsets.symmetric(vertical: 20.0,horizontal: 60.0),
+              padding: EdgeInsets.symmetric(vertical: 20.0,horizontal: 5.0),
               child: AddTodoForm(),
             );
           }

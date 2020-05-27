@@ -35,7 +35,7 @@ class TodoTile extends StatelessWidget {
       },
       icon: Icon(
         Icons.check_circle,
-        color: Colors.green[200],
+        color: Colors.green[300],
         size: 35.0,
       ),
     );
@@ -51,7 +51,7 @@ class TodoTile extends StatelessWidget {
           Container(
             padding:EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
             width: MediaQuery.of(context).size.width*0.70,
-            child:todo.completed ?Text(todo.title,style: TextStyle(color: Colors.blueGrey),):Text(todo.title),
+            child:todo.completed ?Text(todo.title,style: TextStyle(color: Colors.blueGrey,fontSize: 20.0),):Text(todo.title,style: TextStyle(fontSize: 20.0),),
 
           ),
           IconButton(
