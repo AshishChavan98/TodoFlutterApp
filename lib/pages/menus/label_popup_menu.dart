@@ -1,4 +1,8 @@
+import 'package:firebaseapp/models/labels.dart';
+import 'package:firebaseapp/pages/custom_colors/custom_color.dart';
+import 'package:firebaseapp/services/offline_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomPopupMenu {
   CustomPopupMenu({this.title, this.icon});
@@ -12,7 +16,6 @@ class LabelPopMenu extends StatefulWidget {
   final void Function(String value) updateParentLabel;
   LabelPopMenu({this.updateParentLabel});
 
-
   @override
   _LabelPopMenuState createState() => _LabelPopMenuState();
 
@@ -21,11 +24,42 @@ class LabelPopMenu extends StatefulWidget {
 
 class _LabelPopMenuState extends State<LabelPopMenu> {
 
+  List _labels;
+  setValues() async{
+    String table="labels";
+    List<Map<String,dynamic>> result;
 
+
+
+
+    result = await DB.query(table);
+    _labels = result.map((item)=>Labels.fromMap(item)).toList();
+    if(_labels.isEmpty){
+      await DB.insert(table, Labels(label: "One",color: "0xff5E35B1"));
+      await DB.insert(table, Labels(label: "Two",color: "0xffD81B60"));
+      await DB.insert(table, Labels(label: "Three",color: "0xffFFB300"));
+
+      result = await DB.query(table);
+      _labels = result.map((item)=>Labels.fromMap(item)).toList();
+    }
+  }
+
+  clearDatabase() async{
+    String table="labels";
+    List<Map<String,dynamic>> result;
+    result = await DB.query(table);
+    _labels = result.map((item)=>Labels.fromMap(item)).toList();
+    _labels.forEach((element) {
+      DB.delete(table, element);
+    });
+
+  }
   @override
-  void initState() {
+  void initState(){
     // TODO: implement initState
     super.initState();
+    setValues();
+//    clearDatabase();
   }
 
   @override
@@ -43,33 +77,23 @@ class _LabelPopMenuState extends State<LabelPopMenu> {
         widget.updateParentLabel(val);
 
       },
-      itemBuilder: (BuildContext context) =><PopupMenuEntry<String>> [
+//        =><PopupMenuEntry<String>> [
+      itemBuilder: (BuildContext context) {
 
-        PopupMenuItem(
-          value:"None",
-          child: Text('None'),
+        return _labels.map((e) => PopupMenuItem<String>(
+            value: e.id.toString(),
+            child: Row(
+              children: <Widget>[
+                Icon(Icons.brightness_1,color: Color(int.parse(e.color)),),
+                SizedBox(width: 10.0,),
+                Text(e.label)
+              ],
 
-        ),
-        PopupMenuItem(
-          value:"One",
-          child: Text('One'),
+            ),
+        )).toList().cast<PopupMenuEntry<String>>();
 
-        ),
-        PopupMenuItem(
-          value:"Two",
-          child: Text('Two'),
-        ),
-        PopupMenuItem(
-          value:"Three",
-          child: Text('Three'),
-        ),
-
-      ],
-      child: Icon(
-        Icons.label_outline
-        ,size: 40.0,
-        color: Colors.blueGrey,
-      ),
+      },
+      child: SvgPicture.asset("assets/svg/tag.svg",height: 25.0,width: 25.0,color: CustomColor.IconGreyColor,),
     );
   }
 }

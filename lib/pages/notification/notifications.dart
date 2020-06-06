@@ -1,11 +1,14 @@
 
+import 'package:firebaseapp/models/mini_todo.dart';
 import 'package:firebaseapp/models/todo.dart';
+import 'package:firebaseapp/services/offline_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebaseapp/models/todo.dart';
+import 'package:sqflite/sqflite.dart';
 
-Future showNotification() async{
+Future showNotification(int id) async{
 
   final CollectionReference appCollection = Firestore.instance.collection('app');
 
@@ -32,10 +35,45 @@ Future showNotification() async{
   var platformChannelSpecifics = NotificationDetails(
       androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
   await notifications.show(
-      0, length.toString(), 'Tasks remaining today', platformChannelSpecifics,
+      id, length.toString(), 'Tasks remaining today', platformChannelSpecifics,
       payload: 'item x');
 
 }
+
+Future showNotificationTodo(int id) async{
+  String table='todo_notification';
+
+  print("showNotificationTodo id :"+id.toString());
+  String _path = await getDatabasesPath() + 'notificationDB';
+  Database _db = await openDatabase(_path, version: 1,);
+  List<Map<String, dynamic>> result = await _db.query(table);
+  List _tasks = result.map((item)=>MiniTodo.fromMap(item)).toList();
+//  print(_tasks);
+//  print(_tasks);
+  String title='null';
+  for(MiniTodo mini in _tasks){
+     if(mini.id==id){
+       title=mini.title;
+     }
+   }
+
+
+  FlutterLocalNotificationsPlugin notifications=FlutterLocalNotificationsPlugin();
+
+  var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      '2', 'Todo Notification', 'Todo reminders notifications',
+      );
+//  importance: Importance.Low, priority: Priority.Low, ticker: 'ticker'
+  var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+  var platformChannelSpecifics = NotificationDetails(
+      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+  await notifications.show(
+      id, title, 'Tap to review task', platformChannelSpecifics,
+      payload: 'item x');
+
+}
+
+
 scheduledNotification(FlutterLocalNotificationsPlugin notifications){
   var scheduledNotificationDateTime =
   DateTime.now().add(Duration(seconds: 5));
